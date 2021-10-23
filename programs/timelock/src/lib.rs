@@ -2,15 +2,14 @@ use anchor_lang::prelude::*;
 use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::token::{Mint, Token, TokenAccount};
 use streamflow_timelock::{
-    associated_token::{cancel_token_stream, initialize_token_stream, withdraw_token_stream},
     state::{CancelAccounts, InitializeAccounts, StreamInstruction, WithdrawAccounts},
+    token::{initialize_token_stream, update_recipient, withdraw_token_stream},
 };
 
 declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
 #[program]
 pub mod timelock {
-    use streamflow_timelock::associated_token::update_recipient;
     use streamflow_timelock::state::TransferAccounts;
 
     use super::*;
@@ -23,15 +22,26 @@ pub mod timelock {
         period: u64,
         cliff: u64,
         cliff_amount: u64,
+        is_cancelable_by_sender: bool,
+        is_cancelable_by_recipient: bool,
+        is_withdrawal_public: bool,
+        is_transferable: bool,
+        //title: String,
     ) -> ProgramResult {
         let ix = StreamInstruction {
             start_time,
             end_time,
-            deposited_amount: amount,
+            deposited_amount: amount, //TODO: update once continuous streams are ready
             total_amount: amount,
             period,
             cliff,
             cliff_amount,
+            is_cancelable_by_sender,
+            is_cancelable_by_recipient,
+            is_withdrawal_public,
+            is_transferable,
+            //title,
+            padding: 0,
         };
 
         let acc = InitializeAccounts {
@@ -53,6 +63,7 @@ pub mod timelock {
 
     pub fn withdraw(ctx: Context<Withdraw>, amount: u64) -> ProgramResult {
         let acc = WithdrawAccounts {
+            signer: ctx.accounts.signer.to_account_info(),
             recipient: ctx.accounts.recipient.to_account_info(),
             recipient_tokens: ctx.accounts.recipient_tokens.to_account_info(),
             metadata: ctx.accounts.metadata.to_account_info(),
@@ -66,6 +77,7 @@ pub mod timelock {
 
     pub fn cancel(ctx: Context<Cancel>) -> ProgramResult {
         let acc = CancelAccounts {
+            signer: ctx.accounts.signer.to_account_info(),
             sender: ctx.accounts.sender.to_account_info(),
             sender_tokens: ctx.accounts.sender_tokens.to_account_info(),
             recipient: ctx.accounts.recipient.to_account_info(),
@@ -75,7 +87,8 @@ pub mod timelock {
             mint: ctx.accounts.mint.to_account_info(),
             token_program: ctx.accounts.token_program.to_account_info(),
         };
-        cancel_token_stream(ctx.program_id, acc)
+
+        streamflow_timelock::token::cancel(ctx.program_id, acc)
     }
 
     pub fn transfer_recipient(ctx: Context<Transfer>) -> ProgramResult {
@@ -120,8 +133,10 @@ pub struct Create<'info> {
 
 #[derive(Accounts)]
 pub struct Withdraw<'info> {
+    #[account()]
+    pub signer: Signer<'info>,
     #[account(mut)]
-    pub recipient: Signer<'info>,
+    pub recipient: AccountInfo<'info>,
     #[account(mut)]
     pub recipient_tokens: Account<'info, TokenAccount>,
     #[account(mut)]
@@ -134,8 +149,10 @@ pub struct Withdraw<'info> {
 
 #[derive(Accounts)]
 pub struct Cancel<'info> {
+    #[account()]
+    pub signer: Signer<'info>,
     #[account(mut)]
-    pub sender: Signer<'info>,
+    pub sender: AccountInfo<'info>,
     #[account(mut)]
     pub sender_tokens: Account<'info, TokenAccount>,
     #[account(mut)]

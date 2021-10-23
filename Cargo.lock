@@ -1153,8 +1153,8 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "streamflow-timelock"
-version = "0.2.0"
-source = "git+https://github.com/streamflow-finance/streamflow-timelock?rev=769a2629168ec273710a66e150ecb0a0124f3723#769a2629168ec273710a66e150ecb0a0124f3723"
+version = "0.2.1"
+source = "git+https://github.com/streamflow-finance/streamflow-timelock?rev=422c8d494ce7931ff5677cfde1e7ec6478b880bc#422c8d494ce7931ff5677cfde1e7ec6478b880bc"
 dependencies = [
  "borsh",
  "solana-program",

@@ -33,8 +33,9 @@ const TokenStreamDataLayout = BufferLayout.struct<Stream>([
   BufferLayout.blob(8, "magic"),
   ...instructionsFields,
   BufferLayout.blob(8, "created_at"),
-  BufferLayout.blob(8, "withdrawn"),
-  BufferLayout.blob(8, "cancel_time"),
+  BufferLayout.blob(8, "withdrawn_amount"),
+  BufferLayout.blob(8, "canceled_at"),
+  BufferLayout.blob(8, "cancellable_at"),
   BufferLayout.blob(32, "sender"),
   BufferLayout.blob(32, "sender_tokens"),
   BufferLayout.blob(32, "recipient"),
@@ -55,8 +56,9 @@ export function decode(buf: Buffer) {
     cliff: new BN(raw.cliff, LE),
     cliff_amount: new BN(raw.cliff_amount, LE),
     created_at: new BN(raw.created_at, LE),
-    withdrawn: new BN(raw.withdrawn, LE),
-    cancel_time: new BN(raw.cancel_time, LE),
+    withdrawn_amount: new BN(raw.withdrawn_amount, LE),
+    canceled_at: new BN(raw.canceled_at, LE),
+    cancellable_at: new BN(raw.cancellable_at, LE),
     sender: new PublicKey(raw.sender),
     sender_tokens: new PublicKey(raw.sender_tokens),
     recipient: new PublicKey(raw.recipient),
@@ -86,8 +88,9 @@ export interface Stream {
   cliff: BN;
   cliff_amount: BN;
   created_at: BN;
-  withdrawn: BN;
-  cancel_time: BN;
+  withdrawn_amount: BN;
+  canceled_at: BN;
+  cancellable_at: BN;
   sender: PublicKey;
   sender_tokens: PublicKey;
   recipient: PublicKey;

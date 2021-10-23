@@ -20,4 +20,5 @@ anchor-spl = "0.17.0"
 
 [dependencies.streamflow-timelock]
 git = "https://github.com/streamflow-finance/streamflow-timelock"
-rev = "769a2629168ec273710a66e150ecb0a0124f3723"
+#branch = "dev"
+rev = "422c8d494ce7931ff5677cfde1e7ec6478b880bc" #dev branch
